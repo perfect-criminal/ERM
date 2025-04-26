@@ -38,7 +38,7 @@ CREATE TABLE user_rates (
     user_id INT,
     category_id INT,
     rate DECIMAL(10,2) NOT NULL,
-    effective_from DATE DEFAULT CURRENT_DATE,
+    effective_from DATE,
     FOREIGN KEY (user_id) REFERENCES users(id),
     FOREIGN KEY (category_id) REFERENCES job_categories(id)
 );
