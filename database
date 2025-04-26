@@ -1,0 +1,117 @@
+
+-- ===========================================
+-- COMPLETE DATABASE SCHEMA: PAYROLL & TIMESHEET SYSTEM
+-- Author: ChatGPT
+-- ===========================================
+
+-- DROP existing tables and views if necessary (for clean re-setup)
+DROP VIEW IF EXISTS payroll_summary_monthly;
+DROP VIEW IF EXISTS payroll_summary_weekly;
+DROP TABLE IF EXISTS payroll;
+DROP TABLE IF EXISTS timesheets;
+DROP TABLE IF EXISTS user_rates;
+DROP TABLE IF EXISTS job_assignments;
+DROP TABLE IF EXISTS jobs;
+DROP TABLE IF EXISTS job_categories;
+DROP TABLE IF EXISTS users;
+
+-- USERS
+CREATE TABLE users (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(150) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL,
+    role ENUM('employee', 'supervisor', 'admin') DEFAULT 'employee',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- JOB CATEGORIES
+CREATE TABLE job_categories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(100) NOT NULL,
+    description TEXT
+);
+
+-- USER TO JOB CATEGORY RELATION (Many-to-Many)
+CREATE TABLE user_rates (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    category_id INT,
+    rate DECIMAL(10,2) NOT NULL,
+    effective_from DATE DEFAULT CURRENT_DATE,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (category_id) REFERENCES job_categories(id)
+);
+
+-- JOBS
+CREATE TABLE jobs (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(150),
+    location VARCHAR(255),
+    category_id INT,
+    scheduled_date DATE,
+    status ENUM('pending', 'in_progress', 'completed') DEFAULT 'pending',
+    FOREIGN KEY (category_id) REFERENCES job_categories(id)
+);
+
+-- JOB ASSIGNMENTS
+CREATE TABLE job_assignments (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    job_id INT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id)
+);
+
+-- TIMESHEETS
+CREATE TABLE timesheets (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT,
+    job_id INT,
+    submitted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    hours_worked DECIMAL(5,2),
+    status ENUM('submitted', 'approved', 'rejected') DEFAULT 'submitted',
+    supervisor_comment TEXT,
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (job_id) REFERENCES jobs(id)
+);
+
+-- PAYROLL
+CREATE TABLE payroll (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    timesheet_id INT,
+    user_id INT,
+    pay_rate DECIMAL(10,2),
+    total_pay DECIMAL(10,2),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (timesheet_id) REFERENCES timesheets(id),
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
+
+-- VIEWS: Monthly Summary
+CREATE OR REPLACE VIEW payroll_summary_monthly AS
+SELECT
+    u.id AS user_id,
+    u.name AS user_name,
+    DATE_FORMAT(p.created_at, '%Y-%m') AS month,
+    SUM(p.total_pay) AS total_paid,
+    SUM(t.hours_worked) AS total_hours
+FROM payroll p
+JOIN timesheets t ON p.timesheet_id = t.id
+JOIN users u ON p.user_id = u.id
+GROUP BY u.id, month
+ORDER BY month DESC, u.name;
+
+-- VIEWS: Weekly Summary
+CREATE OR REPLACE VIEW payroll_summary_weekly AS
+SELECT
+    u.id AS user_id,
+    u.name AS user_name,
+    YEARWEEK(p.created_at, 1) AS year_week,
+    SUM(p.total_pay) AS total_paid,
+    SUM(t.hours_worked) AS total_hours
+FROM payroll p
+JOIN timesheets t ON p.timesheet_id = t.id
+JOIN users u ON p.user_id = u.id
+GROUP BY u.id, year_week
+ORDER BY year_week DESC, u.name;
