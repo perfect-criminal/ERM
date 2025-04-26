@@ -1,3 +1,8 @@
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-f
 RewriteRule ^(.*)$ index.php?path=$1 [QSA,L]
+<Directory "c:/wamp64/www/ERM/ERM/public">
+    Options Indexes FollowSymLinks Includes ExecCGI
+    AllowOverride All
+    Require all granted
+</Directory>

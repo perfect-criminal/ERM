@@ -1,7 +1,7 @@
 
 -- ===========================================
 -- COMPLETE DATABASE SCHEMA: PAYROLL & TIMESHEET SYSTEM
--- Author: ChatGPT
+-- Author: nirajanghimirey
 -- ===========================================
 
 -- DROP existing tables and views if necessary (for clean re-setup)
