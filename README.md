@@ -20,5 +20,7 @@ INSTALLATION
 - download the project
 - setup database and run sql from database.sql
 - edit config/db.php with your database host, user and password
-- Run localhost/yourporject/create
+- go to /public/createadmin.php and change the sql as required to create a admin user.
+- Run http://localhost/yourporject/public/createadmin.php from your browser
+
 
