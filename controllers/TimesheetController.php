@@ -13,7 +13,7 @@ class TimesheetController {
         $this->timesheet->user_id = $user_id;
         $this->timesheet->job_id = $job_id;
         $this->timesheet->hours_worked = $hours;
-        $this->timesheet->status = 'submitted'; // Initial status is submitted
+        $this->timesheet->status = 'submitted'; // Initial status is submitted can be changed later to approved or rejected
 
         if ($this->timesheet->submit()) {
             return "Timesheet submitted successfully!";
