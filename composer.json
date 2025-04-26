@@ -1,5 +1,15 @@
 {
+    "autoload": {
+        "psr-4": {
+            "app\\": "controllers/",
+            "models\\": "models/",
+            "config\\": "config/",
+            "includes\\": "includes/"
+        }
+    },
     "require": {
         "tecnickcom/tcpdf": "^6.9"
     }
 }
+
+
