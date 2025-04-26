@@ -2,7 +2,7 @@
 
 class Database {
     private $host = 'localhost';
-    private $dbName = 'payroll_timesheet';
+    private $dbName = 'pts';
     private $username = 'root'; // Update with your DB username
     private $password = ''; // Update with your DB password
     private $conn;
